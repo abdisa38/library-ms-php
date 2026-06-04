@@ -140,6 +140,15 @@ include '../../includes/header.php';
     </h1>
 </div>
 
+<!-- Info Alert -->
+<div class="alert alert-info" style="margin-bottom: 1.5rem;">
+    <i class="fas fa-info-circle"></i>
+    <strong>💡 Student Account Linking:</strong> 
+    Students need a user account to login and access the online system. 
+    If you see a "<strong>Link Account</strong>" button, click it to create a login account for that student.
+    Default credentials: <strong>Username (from email) / Password: student123</strong>
+</div>
+
 <!-- Search -->
 <div class="card" style="margin-bottom: 1.5rem;">
     <div class="card-body">

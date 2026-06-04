@@ -1,0 +1,161 @@
+===============================================
+LIBRARY MANAGEMENT SYSTEM - QUICK START GUIDE
+===============================================
+
+INSTALLATION (5 STEPS):
+
+1. START XAMPP
+   - Open XAMPP Control Panel
+   - Start Apache (click Start button)
+   - Start MySQL (click Start button)
+
+2. CREATE DATABASE
+   - Open browser: http://localhost/phpmyadmin
+   - Click "New" on left sidebar
+   - Database name: library_management
+   - Click "Create"
+
+3. IMPORT DATABASE
+   - Click on "library_management" database
+   - Click "Import" tab
+   - Click "Choose File"
+   - Select: C:\xampp\htdocs\Library ms php\library-ms-php\database\library.sql
+   - Click "Go" (wait for success message)
+
+4. ACCESS SYSTEM
+   - Open browser
+   - Go to: http://localhost/library-ms-php/
+   
+5. LOGIN
+   Username: admin
+   Password: admin123
+
+===============================================
+FIRST STEPS AFTER LOGIN:
+===============================================
+
+1. Change your password
+   - Click "My Profile" in sidebar
+   - Use "Change Password" section
+
+2. Configure settings
+   - Go to: Admin > Settings
+   - Set daily fine rate
+   - Set borrow days limit
+
+3. Add your data
+   - Add Categories
+   - Add Authors
+   - Add Publishers
+   - Add Books
+   - Add Students
+
+===============================================
+COMMON OPERATIONS:
+===============================================
+
+ADD A BOOK:
+- Go to: Admin > Books
+- Click "Add New Book"
+- Fill in ISBN, Title, Author, etc.
+- Click "Add Book"
+
+ADD A STUDENT:
+- Go to: Admin > Students
+- Click "Add New Student"
+- Fill in Student ID, Name, Email, etc.
+- Click "Add Student"
+
+BORROW A BOOK:
+- Go to: Admin > Borrowings
+- Click "New Borrowing"
+- Select Student and Book
+- Click "Borrow Book"
+
+RETURN A BOOK:
+- Go to: Admin > Borrowings
+- Find the borrowed book
+- Click "Return" button
+- Confirm return
+
+CHECK OVERDUE BOOKS:
+- Go to: Admin > Overdue Books
+- See list of all overdue books with fines
+
+GENERATE REPORTS:
+- Go to: Admin > Reports
+- Select date range
+- View statistics
+- Export to CSV
+
+===============================================
+TROUBLESHOOTING:
+===============================================
+
+Problem: Can't connect to database
+Solution: 
+- Check MySQL is running in XAMPP
+- Verify database name: library_management
+- Check config/database.php
+
+Problem: Login not working
+Solution:
+- Username: admin
+- Password: admin123
+- Clear browser cookies
+
+Problem: Blank page
+Solution:
+- Check PHP errors in C:\xampp\php\logs\
+- Enable error display in config/config.php
+
+===============================================
+FEATURES INCLUDED:
+===============================================
+
+✓ User Authentication (Login, Logout, Register)
+✓ Password Reset & Remember Me
+✓ Book Management (Add, Edit, Delete, Search)
+✓ Category, Author, Publisher Management
+✓ Student Management
+✓ Borrowing System with Due Dates
+✓ Return System with Auto Fine Calculation
+✓ Overdue Tracking & Notifications
+✓ Dashboard with Statistics & Charts
+✓ Reports & Analytics
+✓ Export to CSV
+✓ Activity Logs
+✓ System Settings
+✓ User Management
+✓ Profile Management
+✓ Responsive Design
+✓ Mobile Friendly
+
+===============================================
+DEFAULT CREDENTIALS:
+===============================================
+
+Admin:
+Username: admin
+Password: admin123
+
+===============================================
+SYSTEM URLS:
+===============================================
+
+Login: http://localhost/library-ms-php/
+Dashboard: http://localhost/library-ms-php/views/admin/dashboard.php
+Books: http://localhost/library-ms-php/views/admin/books.php
+Students: http://localhost/library-ms-php/views/admin/students.php
+
+===============================================
+SUPPORT FILES:
+===============================================
+
+README.md - Complete documentation
+SETUP_GUIDE.md - Detailed installation guide
+database/library.sql - Database schema
+
+===============================================
+PROJECT COMPLETE - READY TO USE!
+===============================================

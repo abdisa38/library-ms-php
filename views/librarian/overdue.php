@@ -6,7 +6,7 @@
 require_once '../../config/config.php';
 require_once '../../includes/functions.php';
 
-requireRole('librarian');
+requireRole('admin');
 
 $pageTitle = 'Overdue Books';
 $borrowing = new Borrowing();

@@ -11,11 +11,16 @@ requireRole('student');
 $pageTitle = 'Student Dashboard';
 $db = getDB();
 
-// Get student info if user has linked student account
+// Get student info - check by email matching with users table
 $studentInfo = null;
 $stmt = $db->prepare("SELECT * FROM students WHERE email = ?");
 $stmt->execute([$_SESSION['email']]);
 $studentInfo = $stmt->fetch();
+
+// Debug: Log the linking check
+if (!$studentInfo) {
+    error_log("Student dashboard: No student profile found for email: " . $_SESSION['email']);
+}
 
 // Get statistics
 $borrowedBooks = 0;

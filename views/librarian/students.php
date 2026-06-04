@@ -95,6 +95,11 @@ $totalStudents = $student->count($search);
 $pagination = paginate($page, $totalStudents);
 $students = $student->getAll($pagination['limit'], $pagination['offset'], $search);
 
+// Get all users with student role for linking
+$db = getDB();
+$stmt = $db->query("SELECT id, username, full_name, email FROM users WHERE role_id = 3");
+$studentUsers = $stmt->fetchAll();
+
 include '../../includes/header.php';
 ?>
 
@@ -143,6 +148,7 @@ include '../../includes/header.php';
                         <th>Phone</th>
                         <th>Department</th>
                         <th>Year</th>
+                        <th>User Account</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>

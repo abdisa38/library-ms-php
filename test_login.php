@@ -1,27 +1,47 @@
 <?php
 /**
- * TEST LOGIN - Simple login without password hashing
- * Use this for testing, then switch to secure login
+ * TEST LOGIN - Simple login for all roles
  */
 
 session_start();
 require_once 'config/database.php';
 
-// Create simple test user if not exists
+// Create test users if not exist
 try {
     $db = getDB();
     
-    // Check if test user exists
+    // Admin user
     $stmt = $db->prepare("SELECT * FROM users WHERE username = 'test'");
     $stmt->execute();
-    $testUser = $stmt->fetch();
-    
-    if (!$testUser) {
-        // Create test user with plain password
-        $stmt = $db->prepare("INSERT INTO users (role_id, username, email, password, full_name) VALUES (1, 'test', 'test@test.com', 'test', 'Test User')");
+    if (!$stmt->fetch()) {
+        $stmt = $db->prepare("INSERT INTO users (role_id, username, email, password, full_name) VALUES (1, 'test', 'test@test.com', 'test', 'Test Admin')");
         $stmt->execute();
-        echo "<div style='padding:20px; background:#d4edda; color:#155724; margin:20px;'>✅ Test user created!</div>";
     }
+    
+    // Librarian user
+    $stmt = $db->prepare("SELECT * FROM users WHERE username = 'librarian'");
+    $stmt->execute();
+    if (!$stmt->fetch()) {
+        $stmt = $db->prepare("INSERT INTO users (role_id, username, email, password, full_name) VALUES (2, 'librarian', 'librarian@test.com', 'librarian', 'Test Librarian')");
+        $stmt->execute();
+    }
+    
+    // Student user with linked profile
+    $stmt = $db->prepare("SELECT * FROM users WHERE username = 'student'");
+    $stmt->execute();
+    if (!$stmt->fetch()) {
+        $stmt = $db->prepare("INSERT INTO users (role_id, username, email, password, full_name) VALUES (3, 'student', 'student@test.com', 'student', 'Test Student')");
+        $stmt->execute();
+        
+        // Create linked student profile
+        $stmt = $db->prepare("SELECT * FROM students WHERE email = 'student@test.com'");
+        $stmt->execute();
+        if (!$stmt->fetch()) {
+            $stmt = $db->prepare("INSERT INTO students (student_id, full_name, email, phone, department, year) VALUES ('STD999', 'Test Student', 'student@test.com', '555-0000', 'Computer Science', 1)");
+            $stmt->execute();
+        }
+    }
+    
 } catch (Exception $e) {
     echo "<div style='padding:20px; background:#f8d7da; color:#721c24; margin:20px;'>Error: " . $e->getMessage() . "</div>";
 }
@@ -46,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['role_id'] = $user['role_id'];
             $_SESSION['profile_picture'] = $user['profile_picture'] ?? 'default.jpg';
             
-            header("Location: views/admin/dashboard.php");
+            header("Location: views/" . $user['role_name'] . "/dashboard.php");
             exit;
         } else {
             $error = "Invalid username or password!";
@@ -78,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            max-width: 450px;
+            max-width: 500px;
             width: 100%;
         }
         h1 {
@@ -91,6 +111,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-align: center;
             margin-bottom: 30px;
             font-size: 14px;
+        }
+        .role-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .role-btn {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .role-btn:hover, .role-btn.active {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+        .role-btn h3 {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .role-btn p {
+            font-size: 11px;
+            color: #666;
         }
         .form-group {
             margin-bottom: 20px;
@@ -133,71 +181,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border-left: 4px solid #f5c6cb;
         }
-        .info-box {
+        .info {
             background: #d1ecf1;
             color: #0c5460;
             padding: 15px;
             border-radius: 8px;
             margin-top: 20px;
-            border-left: 4px solid #bee5eb;
-        }
-        .info-box h3 {
-            margin-bottom: 10px;
-            color: #0c5460;
-        }
-        .credentials {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .credentials p {
-            margin: 5px 0;
-            font-family: monospace;
-            color: #333;
-        }
-        .credentials strong {
-            color: #667eea;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔓 TEST LOGIN</h1>
-        <p class="subtitle">Simple login for testing (no password encryption)</p>
+        <h1>🔓 EASY LOGIN</h1>
+        <p class="subtitle">Click a role to auto-fill credentials</p>
         
         <?php if (isset($error)): ?>
             <div class="error">❌ <?= $error ?></div>
         <?php endif; ?>
         
-        <div class="credentials">
-            <h3 style="margin-bottom: 10px; color: #667eea;">📋 Test Credentials:</h3>
-            <p><strong>Username:</strong> test</p>
-            <p><strong>Password:</strong> test</p>
+        <div class="role-buttons">
+            <div class="role-btn" onclick="selectRole('test', 'test')">
+                <h3>👑 Admin</h3>
+                <p>test/test</p>
+            </div>
+            <div class="role-btn" onclick="selectRole('librarian', 'librarian')">
+                <h3>📚 Librarian</h3>
+                <p>librarian/librarian</p>
+            </div>
+            <div class="role-btn" onclick="selectRole('student', 'student')">
+                <h3>👨‍🎓 Student</h3>
+                <p>student/student</p>
+            </div>
         </div>
         
         <form method="POST">
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" name="username" value="test" required autofocus>
+                <input type="text" name="username" id="username" required>
             </div>
             
             <div class="form-group">
                 <label>Password</label>
-                <input type="text" name="password" value="test" required>
+                <input type="text" name="password" id="password" required>
             </div>
             
             <button type="submit">🚀 LOGIN NOW</button>
         </form>
         
-        <div class="info-box">
-            <h3>ℹ️ Note:</h3>
-            <p style="font-size: 14px; line-height: 1.6;">
-                This is a TEST LOGIN page with plain text passwords for easy testing.
-                After you're done testing, use the secure <strong>index.php</strong> page.
-            </p>
+        <div class="info">
+            <strong>✨ Quick Access:</strong><br>
+            Just click a role button above to auto-fill!<br>
+            • Admin: Full access<br>
+            • Librarian: Manage books & students<br>
+            • Student: Browse & borrow books
         </div>
         
         <div style="text-align: center; margin-top: 20px;">
@@ -206,5 +244,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </a>
         </div>
     </div>
+    
+    <script>
+        function selectRole(username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            
+            // Highlight selected button
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+    </script>
 </body>
 </html>

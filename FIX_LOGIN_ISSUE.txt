@@ -1,0 +1,63 @@
+========================================
+FIX "INVALID CREDENTIALS" ERROR
+========================================
+
+QUICKEST SOLUTION (30 seconds):
+========================================
+
+Step 1: Open your web browser
+
+Step 2: Go to this URL:
+http://localhost/library-ms-php/fix_admin_password.php
+
+Step 3: You will see a success message
+
+Step 4: Click "Go to Login Page"
+
+Step 5: Login with:
+Username: admin
+Password: admin123
+
+Step 6: IMPORTANT - After successful login, delete this file:
+C:\xampp\htdocs\Library ms php\library-ms-php\fix_admin_password.php
+
+DONE! ✓
+
+========================================
+ALTERNATIVE: Re-import Database
+========================================
+
+If the above doesn't work:
+
+1. Go to: http://localhost/phpmyadmin
+2. Click on "library_management" database
+3. Click "Operations" tab at the top
+4. Scroll down and click "Drop the database"
+5. Confirm deletion
+6. Click "New" to create fresh database
+7. Name: library_management
+8. Click "Import" tab
+9. Choose file: C:\xampp\htdocs\Library ms php\library-ms-php\database\library.sql
+10. Click "Go" and wait
+11. Go to: http://localhost/library-ms-php/
+12. Login: admin / admin123
+
+========================================
+WHY THIS HAPPENS:
+========================================
+
+The password hash in the database didn't match.
+The fix_admin_password.php script generates
+the correct hash for "admin123" password.
+
+========================================
+AFTER FIXING:
+========================================
+
+1. Login successfully
+2. Go to "My Profile"
+3. Change your password to something secure
+4. Delete fix_admin_password.php file
+5. Start using the system!
+
+========================================

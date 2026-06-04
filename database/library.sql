@@ -239,7 +239,7 @@ INSERT INTO `roles` (`id`, `role_name`, `description`) VALUES
 -- Password: admin123
 -- =============================================
 INSERT INTO `users` (`id`, `role_id`, `username`, `email`, `password`, `full_name`, `phone`, `address`) VALUES
-(1, 1, 'admin', 'admin@library.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'System Administrator', '1234567890', 'Library Office');
+(1, 1, 'admin', 'admin@library.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHe6.KZHLb6FcqJwOCzZYdqKfN5vBmCjgO', 'System Administrator', '1234567890', 'Library Office');
 
 -- =============================================
 -- Insert Default Settings

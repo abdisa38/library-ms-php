@@ -187,7 +187,7 @@ include '../../includes/header.php';
                 <tbody>
                     <?php if (empty($students)): ?>
                         <tr>
-                            <td colspan="8" style="text-align: center;">No students found</td>
+                            <td colspan="9" style="text-align: center;">No students found</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($students as $std): ?>
@@ -391,6 +391,54 @@ include '../../includes/header.php';
     </div>
 </div>
 
+<!-- Link User Account Modal -->
+<div id="linkAccountModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Link User Account</h3>
+            <button class="modal-close" onclick="closeModal('linkAccountModal')">&times;</button>
+        </div>
+        <form method="POST">
+            <div class="modal-body">
+                <input type="hidden" name="action" value="link_account">
+                <input type="hidden" name="student_id" id="link_student_id">
+                <input type="hidden" name="email" id="link_email">
+                <input type="hidden" name="full_name" id="link_full_name">
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Create Login Account</strong><br>
+                    This will create a user account that the student can use to login to the system.
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Student Name</label>
+                    <input type="text" id="link_display_name" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="text" id="link_display_email" class="form-control" readonly>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-key"></i>
+                    <strong>Default Login Credentials:</strong><br>
+                    <strong>Username:</strong> (auto-generated from email)<br>
+                    <strong>Password:</strong> student123<br>
+                    <small>Student can change password after first login</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('linkAccountModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-link"></i> Create Account & Link
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <?php
 $customJS = '
 <script>
@@ -405,6 +453,16 @@ function editStudent(student) {
     document.getElementById("edit_address").value = student.address || "";
     
     openModal("editStudentModal");
+}
+
+function linkUserAccount(studentId, email, fullName) {
+    document.getElementById("link_student_id").value = studentId;
+    document.getElementById("link_email").value = email;
+    document.getElementById("link_full_name").value = fullName;
+    document.getElementById("link_display_name").value = fullName;
+    document.getElementById("link_display_email").value = email;
+    
+    openModal("linkAccountModal");
 }
 </script>
 ';

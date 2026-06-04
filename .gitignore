@@ -1,0 +1,45 @@
+# Library Management System - Git Ignore
+
+# Configuration files with sensitive data
+config/database.php
+
+# Uploaded files
+uploads/*
+!uploads/.htaccess
+
+# Keep directory structure
+!uploads/books/.gitkeep
+!uploads/profiles/.gitkeep
+
+# PHP
+*.log
+*.cache
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*.sql.gz
+*.zip
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Node modules (if using any build tools)
+node_modules/
+
+# Environment files
+.env
+.env.local

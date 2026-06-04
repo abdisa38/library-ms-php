@@ -160,6 +160,12 @@ include '../../includes/header.php';
                         </tr>
                     <?php else: ?>
                         <?php foreach ($students as $std): ?>
+                            <?php
+                            // Check if student is linked to a user account
+                            $stmt = $db->prepare("SELECT u.id, u.username, u.full_name FROM users u WHERE u.email = ? AND u.role_id = 3");
+                            $stmt->execute([$std['email']]);
+                            $linkedUser = $stmt->fetch();
+                            ?>
                             <tr>
                                 <td><strong><?= e($std['student_id']) ?></strong></td>
                                 <td><?= e($std['full_name']) ?></td>
@@ -167,6 +173,17 @@ include '../../includes/header.php';
                                 <td><?= e($std['phone']) ?></td>
                                 <td><?= e($std['department']) ?></td>
                                 <td>Year <?= $std['year'] ?></td>
+                                <td>
+                                    <?php if ($linkedUser): ?>
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-check-circle"></i> <?= e($linkedUser['username']) ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <button class="btn btn-sm btn-warning" onclick="linkUserAccount(<?= $std['id'] ?>, '<?= e($std['email']) ?>', '<?= e($std['full_name']) ?>')">
+                                            <i class="fas fa-link"></i> Link Account
+                                        </button>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <span class="badge badge-<?= $std['is_active'] ? 'success' : 'danger' ?>">
                                         <?= $std['is_active'] ? 'Active' : 'Inactive' ?>

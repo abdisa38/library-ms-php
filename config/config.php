@@ -10,7 +10,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Base URL
-define('BASE_URL', 'http://localhost/library-ms-php/');
+define('BASE_URL', 'http://localhost/Library%20ms%20php/library-ms-php/');
 define('SITE_NAME', 'Library Management System');
 
 // File upload settings

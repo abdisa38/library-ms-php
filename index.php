@@ -75,6 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             <div class="auth-body">
                 <?php displayFlash(); ?>
                 
+                <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #bee5eb;">
+                    <strong style="color: #0c5460;">💡 Having trouble logging in?</strong><br>
+                    <small style="color: #0c5460;">
+                        Use the <a href="test_login.php" style="color: #0c5460; text-decoration: underline;">TEST LOGIN page</a> for easier access!<br>
+                        Or run: <a href="fix_admin_password.php" style="color: #0c5460; text-decoration: underline;">fix_admin_password.php</a>
+                    </small>
+                </div>
+                
                 <form method="POST" action="">
                     <div class="form-group">
                         <label class="form-label" for="username">

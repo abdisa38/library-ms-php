@@ -1,0 +1,41 @@
+============================================
+✅ SUPER EASY LOGIN - NO HASSLE!
+============================================
+
+STEP 1: Go to this URL in your browser:
+http://localhost/library-ms-php/test_login.php
+
+STEP 2: The form is already filled! Just click:
+"🚀 LOGIN NOW" button
+
+STEP 3: You're in! ✅
+
+============================================
+CREDENTIALS (already filled for you):
+============================================
+Username: test
+Password: test
+
+============================================
+WHAT THIS DOES:
+============================================
+- Creates a simple test user automatically
+- No password encryption (easy testing)
+- Logs you in with one click
+- Takes you straight to the admin dashboard
+
+============================================
+AFTER YOU'RE DONE TESTING:
+============================================
+You can use the secure login at:
+http://localhost/library-ms-php/
+
+With these credentials:
+Username: admin
+Password: admin123
+
+Or just keep using test/test - it works!
+
+============================================
+THAT'S IT! ENJOY! 🎉
+============================================

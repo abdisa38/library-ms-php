@@ -125,6 +125,24 @@
                     </li>
                 <?php endif; ?>
                 
+                <?php if (getUserRole() === 'student'): ?>
+                    <div class="sidebar-heading">Library</div>
+                    
+                    <li>
+                        <a href="<?= BASE_URL ?>views/student/books.php">
+                            <i class="fas fa-book"></i>
+                            <span>Browse Books</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="<?= BASE_URL ?>views/student/borrowings.php">
+                            <i class="fas fa-book-open"></i>
+                            <span>My Borrowings</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                
                 <div class="sidebar-heading">Account</div>
                 
                 <li>

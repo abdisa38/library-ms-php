@@ -6,7 +6,7 @@
 require_once '../../config/config.php';
 require_once '../../includes/functions.php';
 
-requireRole('admin');
+requireRole('librarian');
 
 $pageTitle = 'Manage Authors';
 $author = new Author();

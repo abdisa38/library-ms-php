@@ -15,6 +15,37 @@ $student = new Student();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
+            case 'link_account':
+                // Create a user account linked to student
+                $db = getDB();
+                
+                // Check if email already exists
+                $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+                $stmt->execute([$_POST['email']]);
+                if ($stmt->fetch()) {
+                    setFlash('warning', 'User account already exists with this email');
+                } else {
+                    // Create new user account with student role
+                    $stmt = $db->prepare("
+                        INSERT INTO users (role_id, username, email, password, full_name) 
+                        VALUES (3, ?, ?, ?, ?)
+                    ");
+                    $username = strtolower(str_replace(' ', '', $_POST['email'])); // Use email prefix as username
+                    $username = explode('@', $username)[0]; // Get part before @
+                    $password = 'student123'; // Default password
+                    
+                    $stmt->execute([
+                        $username,
+                        $_POST['email'],
+                        $password, // Plain text for easy login
+                        $_POST['full_name']
+                    ]);
+                    
+                    setFlash('success', "User account created! Username: {$username}, Password: student123");
+                }
+                redirect('students.php');
+                break;
+                
             case 'add':
                 $profilePicture = 'default.jpg';
                 

@@ -92,6 +92,20 @@ include '../../includes/header.php';
     </h1>
 </div>
 
+<?php if (!$studentInfo): ?>
+    <div class="alert alert-warning" style="margin-bottom: 1.5rem;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>Account Not Linked:</strong> Your user account is not linked to a student profile. 
+        Please contact the librarian to link your account so you can borrow books.
+    </div>
+<?php else: ?>
+    <div class="alert alert-info" style="margin-bottom: 1.5rem;">
+        <i class="fas fa-info-circle"></i>
+        <strong>How to Borrow:</strong> Click "View Details" on any book, then click "Borrow This Book" button. 
+        Books are due 14 days from borrow date. You can borrow up to 3 books at a time.
+    </div>
+<?php endif; ?>
+
 <!-- Search & Filter -->
 <div class="card" style="margin-bottom: 1.5rem;">
     <div class="card-body">

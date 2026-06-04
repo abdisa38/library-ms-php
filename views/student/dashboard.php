@@ -11,62 +11,39 @@ requireRole('student');
 $pageTitle = 'Student Dashboard';
 $db = getDB();
 
-// Get student info (if exists)
+// Get student info if user has linked student account
+$studentInfo = null;
 $stmt = $db->prepare("SELECT * FROM students WHERE email = ?");
 $stmt->execute([$_SESSION['email']]);
 $studentInfo = $stmt->fetch();
 
-// Get stats
-$studentId = $studentInfo['id'] ?? 0;
+// Get statistics
+$borrowedBooks = 0;
+$overdueBooks = 0;
+$myBorrowings = [];
 
-// Total borrowed books (current)
-$stmt = $db->prepare("SELECT COUNT(*) as total FROM borrowings WHERE student_id = ? AND status = 'borrowed'");
-$stmt->execute([$studentId]);
-$currentBorrowed = $stmt->fetch()['total'];
-
-// Total books borrowed (all time)
-$stmt = $db->prepare("SELECT COUNT(*) as total FROM borrowings WHERE student_id = ?");
-$stmt->execute([$studentId]);
-$totalBorrowed = $stmt->fetch()['total'];
-
-// Overdue books
-$stmt = $db->prepare("SELECT COUNT(*) as total FROM borrowings WHERE student_id = ? AND status = 'borrowed' AND due_date < CURDATE()");
-$stmt->execute([$studentId]);
-$overdueBooks = $stmt->fetch()['total'];
-
-// Total fines
-$stmt = $db->prepare("SELECT SUM(fine_amount) as total FROM borrowings WHERE student_id = ?");
-$stmt->execute([$studentId]);
-$totalFines = $stmt->fetch()['total'] ?? 0;
-
-// Get current borrowings
-$stmt = $db->prepare("
-    SELECT b.*, bk.title, bk.isbn, bk.book_cover, a.name as author_name,
-           DATEDIFF(b.due_date, CURDATE()) as days_remaining
-    FROM borrowings b
-    JOIN books bk ON b.book_id = bk.id
-    LEFT JOIN authors a ON bk.author_id = a.id
-    WHERE b.student_id = ? AND b.status = 'borrowed'
-    ORDER BY b.due_date ASC
-");
-$stmt->execute([$studentId]);
-$currentBorrowings = $stmt->fetchAll();
-
-// Get borrowing history
-$stmt = $db->prepare("
-    SELECT b.*, bk.title, bk.isbn, a.name as author_name
-    FROM borrowings b
-    JOIN books bk ON b.book_id = bk.id
-    LEFT JOIN authors a ON bk.author_id = a.id
-    WHERE b.student_id = ? AND b.status != 'borrowed'
-    ORDER BY b.return_date DESC
-    LIMIT 5
-");
-$stmt->execute([$studentId]);
-$recentHistory = $stmt->fetchAll();
+if ($studentInfo) {
+    $stmt = $db->query("SELECT COUNT(*) as total FROM borrowings WHERE student_id = {$studentInfo['id']} AND status = 'borrowed'");
+    $borrowedBooks = $stmt->fetch()['total'];
+    
+    $stmt = $db->query("SELECT COUNT(*) as total FROM borrowings WHERE student_id = {$studentInfo['id']} AND status = 'borrowed' AND due_date < CURDATE()");
+    $overdueBooks = $stmt->fetch()['total'];
+    
+    $stmt = $db->prepare("
+        SELECT b.*, bk.title, bk.isbn, bk.book_cover, a.name as author_name
+        FROM borrowings b
+        JOIN books bk ON b.book_id = bk.id
+        LEFT JOIN authors a ON bk.author_id = a.id
+        WHERE b.student_id = ? AND b.status = 'borrowed'
+        ORDER BY b.due_date ASC
+        LIMIT 5
+    ");
+    $stmt->execute([$studentInfo['id']]);
+    $myBorrowings = $stmt->fetchAll();
+}
 
 // Get available books
-$stmt = $db->query("
+$stmt = $db->prepare("
     SELECT b.*, a.name as author_name, c.name as category_name
     FROM books b
     LEFT JOIN authors a ON b.author_id = a.id
@@ -75,6 +52,7 @@ $stmt = $db->query("
     ORDER BY b.date_added DESC
     LIMIT 8
 ");
+$stmt->execute();
 $availableBooks = $stmt->fetchAll();
 
 include '../../includes/header.php';
@@ -82,10 +60,18 @@ include '../../includes/header.php';
 
 <div class="page-header">
     <h1 class="page-title">
-        <i class="fas fa-book-reader"></i> Student Dashboard
+        <i class="fas fa-tachometer-alt"></i> My Dashboard
     </h1>
-    <p>Welcome, <?= e($studentInfo['full_name'] ?? getUserName()) ?>!</p>
+    <p class="text-muted">Welcome back, <?= getUserName() ?>!</p>
 </div>
+
+<?php if (!$studentInfo): ?>
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>Note:</strong> Your account is not linked to a student profile. 
+        Please contact the librarian to link your account.
+    </div>
+<?php endif; ?>
 
 <!-- Statistics Cards -->
 <div class="card-grid">
@@ -93,25 +79,11 @@ include '../../includes/header.php';
         <div class="card-body">
             <div class="stat-card-body">
                 <div class="stat-card-info">
-                    <h3><?= $currentBorrowed ?></h3>
+                    <h3><?= $borrowedBooks ?></h3>
                     <p>Currently Borrowed</p>
                 </div>
                 <div class="stat-card-icon">
                     <i class="fas fa-book-open"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="card stat-card primary">
-        <div class="card-body">
-            <div class="stat-card-body">
-                <div class="stat-card-info">
-                    <h3><?= $totalBorrowed ?></h3>
-                    <p>Total Borrowed</p>
-                </div>
-                <div class="stat-card-icon">
-                    <i class="fas fa-book"></i>
                 </div>
             </div>
         </div>
@@ -131,26 +103,41 @@ include '../../includes/header.php';
         </div>
     </div>
     
+    <div class="card stat-card primary">
+        <div class="card-body">
+            <div class="stat-card-body">
+                <div class="stat-card-info">
+                    <h3><?= count($availableBooks) ?>+</h3>
+                    <p>Available Books</p>
+                </div>
+                <div class="stat-card-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="card stat-card warning">
         <div class="card-body">
             <div class="stat-card-body">
                 <div class="stat-card-info">
-                    <h3>$<?= number_format($totalFines, 2) ?></h3>
-                    <p>Total Fines</p>
+                    <h3><?= getSetting('max_books_per_student', 3) ?></h3>
+                    <p>Max Books Allowed</p>
                 </div>
                 <div class="stat-card-icon">
-                    <i class="fas fa-dollar-sign"></i>
+                    <i class="fas fa-limit"></i>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Current Borrowings -->
-<?php if (!empty($currentBorrowings)): ?>
+<?php if ($studentInfo && !empty($myBorrowings)): ?>
+    <!-- My Current Borrowings -->
     <div class="card" style="margin-top: 2rem;">
         <div class="card-header">
             <h3 class="card-title">My Current Borrowings</h3>
+            <a href="borrowings.php" class="btn btn-primary btn-sm">View All</a>
         </div>
         <div class="card-body">
             <div class="table-container">
@@ -166,38 +153,38 @@ include '../../includes/header.php';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($currentBorrowings as $borrow): ?>
+                        <?php foreach ($myBorrowings as $borrowing): ?>
+                            <?php 
+                            $isOverdue = strtotime($borrowing['due_date']) < time();
+                            $daysLeft = daysDifference(date('Y-m-d'), $borrowing['due_date']);
+                            ?>
                             <tr>
                                 <td>
-                                    <img src="<?= BASE_URL ?>uploads/books/<?= e($borrow['book_cover']) ?>" 
+                                    <img src="<?= BASE_URL ?>uploads/books/<?= e($borrowing['book_cover']) ?>" 
                                          class="book-cover-sm" 
-                                         alt="<?= e($borrow['title']) ?>"
+                                         alt="<?= e($borrowing['title']) ?>"
                                          onerror="this.src='<?= BASE_URL ?>assets/images/default-book.jpg'">
                                 </td>
                                 <td>
-                                    <strong><?= e($borrow['title']) ?></strong><br>
-                                    <small class="text-muted">ISBN: <?= e($borrow['isbn']) ?></small>
+                                    <strong><?= e($borrowing['title']) ?></strong><br>
+                                    <small class="text-muted"><?= e($borrowing['isbn']) ?></small>
                                 </td>
-                                <td><?= e($borrow['author_name']) ?></td>
-                                <td><?= formatDate($borrow['borrow_date']) ?></td>
+                                <td><?= e($borrowing['author_name']) ?></td>
+                                <td><?= formatDate($borrowing['borrow_date']) ?></td>
                                 <td>
-                                    <?= formatDate($borrow['due_date']) ?><br>
-                                    <?php if ($borrow['days_remaining'] < 0): ?>
-                                        <span class="badge badge-danger">
-                                            <?= abs($borrow['days_remaining']) ?> days overdue
-                                        </span>
-                                    <?php elseif ($borrow['days_remaining'] <= 3): ?>
-                                        <span class="badge badge-warning">
-                                            <?= $borrow['days_remaining'] ?> days left
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="badge badge-success">
-                                            <?= $borrow['days_remaining'] ?> days left
-                                        </span>
+                                    <?= formatDate($borrowing['due_date']) ?>
+                                    <?php if ($isOverdue): ?>
+                                        <br><small class="text-danger">
+                                            <i class="fas fa-exclamation-circle"></i> Overdue!
+                                        </small>
+                                    <?php elseif ($daysLeft <= 2): ?>
+                                        <br><small class="text-warning">
+                                            <i class="fas fa-clock"></i> Due soon (<?= abs($daysLeft) ?> days)
+                                        </small>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if ($borrow['days_remaining'] < 0): ?>
+                                    <?php if ($isOverdue): ?>
                                         <span class="badge badge-danger">Overdue</span>
                                     <?php else: ?>
                                         <span class="badge badge-info">Borrowed</span>
@@ -216,83 +203,34 @@ include '../../includes/header.php';
 <div class="card" style="margin-top: 2rem;">
     <div class="card-header">
         <h3 class="card-title">Available Books</h3>
-        <a href="books.php" class="btn btn-primary btn-sm">
-            <i class="fas fa-book"></i> View All Books
-        </a>
+        <a href="books.php" class="btn btn-primary btn-sm">Browse All Books</a>
     </div>
     <div class="card-body">
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem;">
             <?php foreach ($availableBooks as $book): ?>
-                <div class="card">
+                <div class="card" style="overflow: hidden;">
                     <img src="<?= BASE_URL ?>uploads/books/<?= e($book['book_cover']) ?>" 
                          class="book-cover" 
                          alt="<?= e($book['title']) ?>"
+                         style="width: 100%; height: 250px; object-fit: cover;"
                          onerror="this.src='<?= BASE_URL ?>assets/images/default-book.jpg'">
-                    <div class="card-body">
-                        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;"><?= e($book['title']) ?></h4>
+                    <div style="padding: 1rem;">
+                        <h4 style="font-size: 1rem; margin-bottom: 0.5rem;"><?= e($book['title']) ?></h4>
                         <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.5rem;">
-                            <?= e($book['author_name']) ?>
+                            <i class="fas fa-user"></i> <?= e($book['author_name']) ?>
                         </p>
-                        <span class="badge badge-primary"><?= e($book['category_name']) ?></span>
-                        <p style="margin-top: 0.5rem; font-size: 0.85rem;">
+                        <p style="font-size: 0.85rem; margin-bottom: 0.75rem;">
+                            <span class="badge badge-primary"><?= e($book['category_name']) ?></span>
                             <span class="badge badge-success"><?= $book['available_copies'] ?> available</span>
                         </p>
+                        <a href="books.php?id=<?= $book['id'] ?>" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
     </div>
 </div>
-
-<!-- Recent History -->
-<?php if (!empty($recentHistory)): ?>
-    <div class="card" style="margin-top: 2rem;">
-        <div class="card-header">
-            <h3 class="card-title">Recent Borrowing History</h3>
-        </div>
-        <div class="card-body">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Book Title</th>
-                            <th>Author</th>
-                            <th>Borrow Date</th>
-                            <th>Return Date</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($recentHistory as $history): ?>
-                            <tr>
-                                <td>
-                                    <strong><?= e($history['title']) ?></strong><br>
-                                    <small class="text-muted">ISBN: <?= e($history['isbn']) ?></small>
-                                </td>
-                                <td><?= e($history['author_name']) ?></td>
-                                <td><?= formatDate($history['borrow_date']) ?></td>
-                                <td><?= formatDate($history['return_date']) ?></td>
-                                <td>
-                                    <span class="badge badge-success">Returned</span>
-                                    <?php if ($history['fine_amount'] > 0): ?>
-                                        <br><small class="text-danger">Fine: $<?= number_format($history['fine_amount'], 2) ?></small>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-<?php endif; ?>
-
-<?php if ($studentId === 0): ?>
-    <div class="alert alert-info" style="margin-top: 2rem;">
-        <i class="fas fa-info-circle"></i>
-        <strong>Note:</strong> Your account is not linked to a student record yet. 
-        Please contact the librarian to complete your profile.
-    </div>
-<?php endif; ?>
 
 <?php include '../../includes/footer.php'; ?>

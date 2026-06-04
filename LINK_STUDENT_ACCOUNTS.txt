@@ -1,0 +1,113 @@
+========================================
+HOW TO LINK STUDENT ACCOUNTS
+========================================
+
+WHAT IS ACCOUNT LINKING?
+-------------------------
+Account linking connects a student profile (used for borrowing books) to a 
+user account (used for logging into the system).
+
+WHY LINK ACCOUNTS?
+------------------
+✅ Students can login to the system
+✅ Students can browse available books online
+✅ Students can view their borrowing history
+✅ Students can update their profile
+✅ Prevents "account not linked" warning messages
+
+HOW TO LINK A STUDENT ACCOUNT (LIBRARIAN):
+-------------------------------------------
+
+STEP 1: Login as Librarian
+   URL: http://localhost/Library%20ms%20php/library-ms-php/test_login.php
+   Credentials: librarian/librarian
+
+STEP 2: Go to Students Page
+   Click "Students" in the left sidebar
+
+STEP 3: Find Student Without Account
+   Look for the "User Account" column
+   - If shows green badge with username → Already linked ✅
+   - If shows orange "Link Account" button → Not linked yet ⚠️
+
+STEP 4: Click "Link Account" Button
+   A modal will open showing:
+   - Student name
+   - Student email
+   - Default credentials that will be created
+
+STEP 5: Click "Create Account & Link"
+   The system will:
+   ✅ Create a user account with role "Student"
+   ✅ Auto-generate username from email (e.g., john@student.com → john)
+   ✅ Set default password: student123
+   ✅ Link it to the student profile via email matching
+
+STEP 6: Student Can Now Login!
+   The student can login at:
+   - URL: http://localhost/Library%20ms%20php/library-ms-php/test_login.php
+   - Username: (shown in success message)
+   - Password: student123
+
+DEFAULT CREDENTIALS CREATED:
+----------------------------
+Username: Auto-generated from email (part before @)
+Password: student123
+
+Example:
+  Student Email: john.doe@university.edu
+  Username: john.doe
+  Password: student123
+
+WHAT STUDENTS CAN DO AFTER LINKING:
+------------------------------------
+✅ Login to the system
+✅ Browse all available books
+✅ View their current borrowed books
+✅ See borrowing history with due dates
+✅ Check fine amounts for overdue books
+✅ Update their profile and change password
+
+HOW THE SYSTEM LINKS ACCOUNTS:
+-------------------------------
+The system matches user accounts to student profiles using EMAIL.
+When emails match:
+  users.email = students.email
+  AND users.role_id = 3 (Student role)
+
+TROUBLESHOOTING:
+----------------
+
+Q: Student already has a user account but shows "Link Account"?
+A: The emails don't match. Check:
+   - Student profile email in Students page
+   - User account email (if they registered themselves)
+   - Update one to match the other
+
+Q: Get error "User account already exists"?
+A: A user with that email already exists. The account might already be linked!
+   Refresh the page and check if it now shows as linked.
+
+Q: Student can't login after linking?
+A: Make sure they use:
+   - The username shown in the success message (not email)
+   - Password: student123
+   - Or use test_login.php and manually enter credentials
+
+BULK LINKING (Future Enhancement):
+-----------------------------------
+Currently, you must link accounts one by one.
+Future versions could add:
+- "Link All" button to create accounts for all students at once
+- CSV import to create multiple linked accounts
+- Auto-linking on student creation
+
+SECURITY NOTE:
+--------------
+⚠️ Default password is "student123" for easy access during development/testing.
+In production, you should:
+- Use stronger default passwords
+- Force password change on first login
+- Email credentials to students securely
+
+STATUS: ✅ FEATURE COMPLETE & READY TO USE!
